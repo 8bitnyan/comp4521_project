@@ -140,6 +140,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(fontSize: 16),
                             ),
                     ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/signup');
+                      },
+                      child: const Text('Sign Up'),
+                    ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'map_screen.dart';
-import 'settings_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -105,6 +103,20 @@ class DashboardScreen extends StatelessWidget {
                     description: 'Customize your app experience',
                     onTap: () {
                       Navigator.pushNamed(context, '/settings');
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: _FeatureCard(
+                    icon: Icons.map,
+                    title: 'Events',
+                    description: 'Find your way around campus',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/events');
                     },
                   ),
                 ),
