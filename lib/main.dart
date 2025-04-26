@@ -4,12 +4,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/facility_provider.dart';
+import 'providers/food_venue_provider.dart';
+import 'services/theme_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/events_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/facilities_screen.dart';
+import 'screens/food_venues_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +29,10 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => FacilityProvider()),
+        ChangeNotifierProvider(create: (_) => FoodVenueProvider()),
         // Add other providers here as needed
       ],
       child: const MyApp(),
@@ -37,20 +45,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HKUST School Guide',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const AuthGate(),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignUpScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
-        '/events': (context) => const EventsScreen(),
-        '/map': (context) => const MapScreen(),
-        '/settings': (context) => const SettingsScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'HKUST School Guide',
+          theme: ThemeService.getLightTheme(),
+          darkTheme: ThemeService.getDarkTheme(),
+          themeMode: themeProvider.themeMode,
+          home: const AuthGate(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/signup': (context) => const SignUpScreen(),
+            '/dashboard': (context) => const DashboardScreen(),
+            '/events': (context) => const EventsScreen(),
+            '/map': (context) => const MapScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/facilities': (context) => const FacilitiesScreen(),
+            '/venues': (context) => const FoodVenuesScreen(),
+          },
+        );
       },
     );
   }

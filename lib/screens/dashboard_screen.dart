@@ -89,13 +89,54 @@ class DashboardScreen extends StatelessWidget {
                   child: _FeatureCard(
                     icon: Icons.map,
                     title: 'Campus Map',
-                    description: 'Find your way around campus',
+                    description: 'Interactive navigation and location finder',
                     onTap: () {
                       Navigator.pushNamed(context, '/map');
                     },
                   ),
                 ),
                 const SizedBox(width: 16),
+                Expanded(
+                  child: _FeatureCard(
+                    icon: Icons.calendar_today,
+                    title: 'Events',
+                    description: 'Campus events and activities',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/events');
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _FeatureCard(
+                    icon: Icons.business,
+                    title: 'Facilities',
+                    description: 'Library, labs, and campus resources',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/facilities');
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _FeatureCard(
+                    icon: Icons.restaurant,
+                    title: 'Food Venues',
+                    description: 'Dining options and menus',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/venues');
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.settings,
@@ -106,20 +147,9 @@ class DashboardScreen extends StatelessWidget {
                     },
                   ),
                 ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: _FeatureCard(
-                    icon: Icons.map,
-                    title: 'Events',
-                    description: 'Find your way around campus',
-                    onTap: () {
-                      Navigator.pushNamed(context, '/events');
-                    },
-                  ),
-                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                    child: SizedBox()), // Empty slot for future feature
               ],
             ),
             const SizedBox(height: 24),
