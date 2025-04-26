@@ -73,6 +73,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildPrivacySettings(settingsProvider),
             const Divider(),
 
+            _buildSectionHeader('Accessibility'),
+            _buildAccessibilitySettings(),
+            const Divider(),
+
             _buildSectionHeader('About'),
             _buildAboutSection(),
             const SizedBox(height: 16),
@@ -489,6 +493,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Terms of Service would open here')),
             );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccessibilitySettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          title: const Text('Voice Commands'),
+          subtitle: const Text('Configure voice command settings and options'),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            Navigator.pushNamed(context, '/accessibility');
           },
         ),
       ],

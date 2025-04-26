@@ -30,6 +30,20 @@ android {
         versionName = flutter.versionName
     }
 
+    // Add a preBuild task to update API keys
+    preBuild {
+        doFirst {
+            exec {
+                workingDir '../../'
+                if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                    commandLine 'cmd', '/c', 'scripts/update_api_keys.sh'
+                } else {
+                    commandLine 'bash', 'scripts/update_api_keys.sh'
+                }
+            }
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

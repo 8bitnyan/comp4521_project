@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/voice_command_button.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -187,6 +188,7 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: const VoiceCommandButton(),
     );
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/app_config.dart';
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/facility_provider.dart';
 import 'providers/food_venue_provider.dart';
+import 'providers/voice_command_provider.dart';
 import 'services/theme_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
@@ -15,9 +17,13 @@ import 'screens/map_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/facilities_screen.dart';
 import 'screens/food_venues_screen.dart';
+import 'screens/accessibility_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize app configuration (API keys)
+  await AppConfig.initialize();
 
   await Supabase.initialize(
     url: 'https://byhgngvrdzhhzedeqdsb.supabase.co',
@@ -33,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => FacilityProvider()),
         ChangeNotifierProvider(create: (_) => FoodVenueProvider()),
+        ChangeNotifierProvider(create: (_) => VoiceCommandProvider()),
         // Add other providers here as needed
       ],
       child: const MyApp(),
@@ -62,6 +69,7 @@ class MyApp extends StatelessWidget {
             '/settings': (context) => const SettingsScreen(),
             '/facilities': (context) => const FacilitiesScreen(),
             '/venues': (context) => const FoodVenuesScreen(),
+            '/accessibility': (context) => const AccessibilityScreen(),
           },
         );
       },
