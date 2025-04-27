@@ -94,7 +94,7 @@ class _CameraScreenState extends State<CameraScreen> {
               },
               {
                 "type": "text",
-                "text": "Explain me about this image."
+                "text": "You are looking at a photo taken at the HKUST campus. Please carefully describe what is visible in the image. Focus on identifying key landmarks, buildings, or any notable features. Be as specific and detailed as possible."
               }
             ]
           }
