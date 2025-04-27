@@ -42,6 +42,7 @@ dependencies:
   shared_preferences: ^2.2.2
   # For handling HTTP requests
   http: ^1.2.1
+  camera: ^0.11.1
 
 dev_dependencies:
   flutter_test:

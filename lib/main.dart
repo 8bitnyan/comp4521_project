@@ -6,6 +6,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/camera_screen.dart';
 
 void main() {
   runApp(
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
             '/dashboard': (context) => const DashboardScreen(),
             '/map': (context) => const MapScreen(),
             '/settings': (context) => const SettingsScreen(),
+            '/camera': (context) => const CameraScreen(),
           },
         );
       },
