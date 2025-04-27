@@ -90,8 +90,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.map,
-                    title: 'Where Am I',
-                    description: 'Get an explanation on current place',
+                    title: 'Campus Map',
+                    description: 'Find your way around campus',
                     onTap: () {
                       Navigator.pushNamed(context, '/map');
                     },
@@ -116,8 +116,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.camera,
-                    title: 'Camera',
-                    description: 'Camera (On Dev)',
+                    title: 'What is this',
+                    description: 'Take a photo to identify what you see',
                     onTap: () {
                       Navigator.pushNamed(context, '/camera');
                     },
