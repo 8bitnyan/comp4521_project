@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
             '/facilities': (context) => const FacilitiesScreen(),
             '/venues': (context) => const FoodVenuesScreen(),
             '/accessibility': (context) => const AccessibilityScreen(),
+            '/camera': (context) => const CameraScreen(),
           },
         );
       },

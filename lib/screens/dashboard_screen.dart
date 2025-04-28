@@ -153,6 +153,21 @@ class DashboardScreen extends StatelessWidget {
                     child: SizedBox()), // Empty slot for future feature
               ],
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _FeatureCard(
+                    icon: Icons.camera,
+                    title: 'What is this',
+                    description: 'Take a photo to identify what you see',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/camera');
+                    },
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
             Card(
               elevation: 2,
