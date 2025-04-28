@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/facility_provider.dart';
-import '../models/facility.dart';
 import '../widgets/facility_card.dart';
 
 class FacilitiesScreen extends StatefulWidget {

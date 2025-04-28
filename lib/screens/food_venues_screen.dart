@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/food_venue_provider.dart';
-import '../models/food_venue.dart';
 import '../widgets/food_venue_card.dart';
 
 class FoodVenuesScreen extends StatefulWidget {

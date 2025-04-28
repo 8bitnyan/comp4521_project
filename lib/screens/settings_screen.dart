@@ -13,7 +13,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isGeneratingMockData = false;
+  final bool _isGeneratingMockData = false;
 
   @override
   void initState() {
@@ -208,11 +208,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             settingsProvider.setFontSize(value);
           },
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text('Small', style: TextStyle(fontSize: 12)),
               Text('Medium', style: TextStyle(fontSize: 14)),
               Text('Large', style: TextStyle(fontSize: 16)),
@@ -519,13 +519,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListTile(
-          title: const Text('App Version'),
-          subtitle: const Text('1.0.0'),
+        const ListTile(
+          title: Text('App Version'),
+          subtitle: Text('1.0.0'),
         ),
-        ListTile(
-          title: const Text('Developed By'),
-          subtitle: const Text('COMP4521 Project Team'),
+        const ListTile(
+          title: Text('Developed By'),
+          subtitle: Text('COMP4521 Project Team'),
         ),
         ListTile(
           title: const Text('Send Feedback'),
@@ -546,30 +546,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: Text('Clear Cache'),
-          leading: Icon(Icons.cleaning_services),
+          title: const Text('Clear Cache'),
+          leading: const Icon(Icons.cleaning_services),
           onTap: () {
             // Implement clearing cache
           },
         ),
         ListTile(
-          title: Text('Generate Mock Data'),
-          leading: Icon(Icons.data_array),
+          title: const Text('Generate Mock Data'),
+          leading: const Icon(Icons.data_array),
           onTap: () async {
             bool confirm = await showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text('Generate Mock Data'),
-                    content: Text(
+                    title: const Text('Generate Mock Data'),
+                    content: const Text(
                         'This will add sample data to your database. Continue?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
-                        child: Text('Generate'),
+                        child: const Text('Generate'),
                       ),
                     ],
                   ),
@@ -584,7 +584,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     accessCheck.values.every((canAccess) => canAccess);
 
                 if (!hasAccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content:
                           Text('No database access. Check your connection.')));
                   return;

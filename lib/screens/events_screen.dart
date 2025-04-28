@@ -195,9 +195,9 @@ class _EventsScreenState extends State<EventsScreen>
           onPageChanged: (focusedDay) {
             _focusedDay = focusedDay;
           },
-          calendarStyle: CalendarStyle(
+          calendarStyle: const CalendarStyle(
             markersMaxCount: 3,
-            markerDecoration: const BoxDecoration(
+            markerDecoration: BoxDecoration(
               color: Colors.blue,
               shape: BoxShape.circle,
             ),
@@ -323,9 +323,7 @@ class _EventsScreenState extends State<EventsScreen>
                 const SizedBox(height: 16),
                 _buildEventDetailRow(
                     Icons.access_time,
-                    _formatDateTime(event.startTime) +
-                        ' - ' +
-                        _formatTime(event.endTime)),
+                    '${_formatDateTime(event.startTime)} - ${_formatTime(event.endTime)}'),
                 const SizedBox(height: 8),
                 _buildEventDetailRow(Icons.location_on, event.location),
                 const SizedBox(height: 8),
