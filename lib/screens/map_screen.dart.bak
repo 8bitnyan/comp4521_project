@@ -1,0 +1,402 @@
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../config/app_config.dart';
+import 'dart:async';
+import 'dart:developer' as developer;
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
+
+class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
+  GoogleMapController? _mapController;
+
+  // Default camera position (can be set to your school's location)
+  static const LatLng _defaultLocation =
+      LatLng(22.3373, 114.2636); // Example: HKUST
+
+  final Set<Marker> _markers = {};
+  bool _isLoading = true;
+  bool _hasMapError = false;
+  String _errorMessage = '';
+  Completer<GoogleMapController> _controllerCompleter = Completer();
+
+  // Campus locations to mark on the map
+  final List<Map<String, dynamic>> _campusLocations = [
+    {
+      'id': 'academic_building',
+      'position': const LatLng(22.3373, 114.2636),
+      'title': 'Academic Building',
+      'snippet': 'Main academic complex with lecture halls and laboratories',
+    },
+    {
+      'id': 'library',
+      'position': const LatLng(22.3363, 114.2630),
+      'title': 'University Library',
+      'snippet': 'Five-story building with study spaces and resources',
+    },
+    {
+      'id': 'sports_center',
+      'position': const LatLng(22.3380, 114.2619),
+      'title': 'Sports Center',
+      'snippet': 'Indoor swimming pool, gym, and sports facilities',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _logDiagnosticInfo("MapScreen initialized");
+    _verifyGoogleMapsConfiguration();
+    _initializeMarkers();
+
+    // Set a timeout to detect map loading failures
+    Future.delayed(const Duration(seconds: 8), () {
+      if (mounted && _isLoading && !_controllerCompleter.isCompleted) {
+        setState(() {
+          _hasMapError = true;
+          _isLoading = false;
+          _errorMessage =
+              'Map failed to load. Please check your network connection.';
+          _logDiagnosticInfo("Map failed to load after timeout");
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _logDiagnosticInfo("App lifecycle state changed to: $state");
+  }
+
+  void _logDiagnosticInfo(String message) {
+    try {
+      // Log to console
+      print("MAP_DIAGNOSTIC: $message");
+
+      // More detailed developer log
+      developer.log(message, name: 'MapScreen');
+    } catch (e) {
+      print("Error logging diagnostic info: $e");
+    }
+  }
+
+  void _verifyGoogleMapsConfiguration() {
+    try {
+      // Check API key
+      String apiKey = AppConfig.googleMapsApiKey;
+      _logDiagnosticInfo("Google Maps API Key length: ${apiKey.length}");
+
+      if (apiKey.isEmpty || apiKey == 'YOUR_API_KEY_HERE') {
+        _logDiagnosticInfo("API Key is invalid or not configured");
+        setState(() {
+          _hasMapError = true;
+          _isLoading = false;
+          _errorMessage = 'Google Maps API key is not properly configured.';
+        });
+        return;
+      }
+
+      _logDiagnosticInfo("Google Maps configuration check complete");
+    } catch (e) {
+      _logDiagnosticInfo("Error verifying Google Maps configuration: $e");
+      setState(() {
+        _hasMapError = true;
+        _isLoading = false;
+        _errorMessage = 'Configuration error: $e';
+      });
+    }
+  }
+
+  void _initializeMarkers() {
+    try {
+      _logDiagnosticInfo("Initializing map markers");
+
+      // Add markers for campus locations
+      for (final location in _campusLocations) {
+        _markers.add(
+          Marker(
+            markerId: MarkerId(location['id']),
+            position: location['position'],
+            infoWindow: InfoWindow(
+              title: location['title'],
+              snippet: location['snippet'],
+            ),
+          ),
+        );
+      }
+
+      _logDiagnosticInfo("Markers initialized successfully");
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      _logDiagnosticInfo("Error initializing markers: $e");
+      setState(() {
+        _hasMapError = true;
+        _isLoading = false;
+        _errorMessage = 'Error initializing map markers: $e';
+      });
+    }
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    try {
+      _logDiagnosticInfo("Map controller created successfully");
+      _mapController = controller;
+      if (!_controllerCompleter.isCompleted) {
+        _controllerCompleter.complete(controller);
+      }
+    } catch (e) {
+      _logDiagnosticInfo("Error creating map controller: $e");
+      setState(() {
+        _hasMapError = true;
+        _isLoading = false;
+        _errorMessage = 'Error initializing map: $e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _logDiagnosticInfo("Building MapScreen widget. Error state: $_hasMapError");
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Campus Map'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _showDebugInfo,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          if (_hasMapError)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Unable to load map',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage.isNotEmpty
+                          ? _errorMessage
+                          : 'Please check your internet connection and API keys.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _logDiagnosticInfo("Retry button pressed");
+                        setState(() {
+                          _hasMapError = false;
+                          _isLoading = true;
+                          _controllerCompleter = Completer();
+                          // Reset the timeout
+                          Future.delayed(const Duration(seconds: 10), () {
+                            if (mounted &&
+                                _isLoading &&
+                                !_controllerCompleter.isCompleted) {
+                              setState(() {
+                                _hasMapError = true;
+                                _isLoading = false;
+                                _logDiagnosticInfo(
+                                    "Map still failing after retry");
+                              });
+                            }
+                          });
+                        });
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            _buildGoogleMap(),
+          if (_isLoading && !_hasMapError)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
+      floatingActionButton: _hasMapError
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                _mapController?.animateCamera(
+                  CameraUpdate.newCameraPosition(
+                    const CameraPosition(
+                      target: _defaultLocation,
+                      zoom: 16.0,
+                    ),
+                  ),
+                );
+              },
+              child: const Icon(Icons.center_focus_strong),
+            ),
+    );
+  }
+
+  Widget _buildGoogleMap() {
+    try {
+      _logDiagnosticInfo("Building GoogleMap widget");
+
+      // Check if we're running on iOS simulator (which doesn't support Google Maps well)
+      if (Platform.isIOS && !kReleaseMode) {
+        _logDiagnosticInfo("Running on iOS in debug mode - may be a simulator");
+        // Show simplified map in iOS debug mode
+        return _buildSimplifiedMapView();
+      }
+
+      // Step by step initialization to identify crash point
+      _logDiagnosticInfo("Creating CameraPosition");
+      final cameraPosition = const CameraPosition(
+        target: _defaultLocation,
+        zoom: 16.0,
+      );
+
+      _logDiagnosticInfo("Creating GoogleMap widget");
+      return GoogleMap(
+        onMapCreated: (GoogleMapController controller) {
+          _logDiagnosticInfo("onMapCreated callback triggered");
+          _onMapCreated(controller);
+        },
+        initialCameraPosition: cameraPosition,
+        markers: _markers,
+        // Disable potentially problematic features
+        myLocationEnabled: false,
+        myLocationButtonEnabled: false,
+        mapToolbarEnabled: false,
+        zoomControlsEnabled: false,
+        compassEnabled: false,
+        tiltGesturesEnabled: false,
+        rotateGesturesEnabled: false,
+        zoomGesturesEnabled: false,
+        scrollGesturesEnabled: false,
+      );
+    } catch (e) {
+      _logDiagnosticInfo("Error building GoogleMap widget: $e");
+      Future.microtask(() {
+        if (mounted) {
+          setState(() {
+            _hasMapError = true;
+            _isLoading = false;
+            _errorMessage = 'Error building map: $e';
+          });
+        }
+      });
+      return Container(
+          color:
+              Colors.grey[200]); // Return a grey container to make it visible
+    }
+  }
+
+  void _showDebugInfo() {
+    try {
+      String apiKey = AppConfig.googleMapsApiKey;
+      String maskedKey = apiKey.length > 8
+          ? '${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}'
+          : '(invalid or missing key)';
+
+      _logDiagnosticInfo("Showing debug info dialog");
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Map Debug Info'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('API Key (masked): $maskedKey'),
+                Text('API Key Length: ${apiKey.length}'),
+                Text('Has Map Controller: ${_mapController != null}'),
+                Text('Is Loading: $_isLoading'),
+                Text('Has Error: $_hasMapError'),
+                Text('Error Message: $_errorMessage'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      _logDiagnosticInfo("Error showing debug info: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _logDiagnosticInfo("Disposing MapScreen");
+    WidgetsBinding.instance.removeObserver(this);
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  // Simplified map view as a fallback
+  Widget _buildSimplifiedMapView() {
+    return Stack(
+      children: [
+        // Static map background (grey)
+        Container(
+          color: Colors.grey[300],
+        ),
+        // Marker at center
+        Center(
+          child: Icon(
+            Icons.location_on,
+            color: Colors.red,
+            size: 36,
+          ),
+        ),
+        // Overlay with explanation
+        Positioned(
+          top: 16,
+          left: 16,
+          right: 16,
+          child: Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Using simplified map view. Google Maps may not be available in your current environment.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

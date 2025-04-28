@@ -18,6 +18,7 @@ import 'screens/settings_screen.dart';
 import 'screens/facilities_screen.dart';
 import 'screens/food_venues_screen.dart';
 import 'screens/accessibility_screen.dart';
+import 'screens/camera_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +66,54 @@ class MyApp extends StatelessWidget {
             '/signup': (context) => const SignUpScreen(),
             '/dashboard': (context) => const DashboardScreen(),
             '/events': (context) => const EventsScreen(),
-            '/map': (context) => const MapScreen(),
+            '/map': (context) {
+              // Wrap the MapScreen with error handling
+              return Builder(
+                builder: (context) {
+                  try {
+                    return const MapScreen();
+                  } catch (e) {
+                    // If MapScreen crashes during creation, show fallback UI
+                    print("CRITICAL ERROR - Map screen crashed: $e");
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Campus Map (Error)'),
+                      ),
+                      body: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.error_outline,
+                                size: 64, color: Colors.red),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Map failed to load',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 32),
+                              child: Text(
+                                'Error: $e',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            ElevatedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Go Back'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                },
+              );
+            },
             '/settings': (context) => const SettingsScreen(),
             '/facilities': (context) => const FacilitiesScreen(),
             '/venues': (context) => const FoodVenuesScreen(),

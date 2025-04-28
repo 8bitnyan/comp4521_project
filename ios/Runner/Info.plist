@@ -51,5 +51,7 @@
 	<string>This app uses the microphone to enable voice command features for accessibility.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This app uses speech recognition to process voice commands for improved accessibility.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app requires access to the local network for map features and debugging.</string>
 </dict>
 </plist>
