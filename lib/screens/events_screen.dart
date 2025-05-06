@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/event.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -146,14 +147,15 @@ class _EventsScreenState extends State<EventsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Campus Events'),
+        title: Text(loc.campus_events),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.calendar_month), text: 'Calendar'),
-            Tab(icon: Icon(Icons.view_list), text: 'List View'),
+          tabs: [
+            Tab(icon: const Icon(Icons.calendar_month), text: loc.calendar),
+            Tab(icon: const Icon(Icons.view_list), text: loc.list_view),
           ],
         ),
       ),
@@ -162,14 +164,14 @@ class _EventsScreenState extends State<EventsScreen>
           : TabBarView(
               controller: _tabController,
               children: [
-                _buildCalendarView(),
-                _buildListView(),
+                _buildCalendarView(loc),
+                _buildListView(loc),
               ],
             ),
     );
   }
 
-  Widget _buildCalendarView() {
+  Widget _buildCalendarView(AppLocalizations loc) {
     return Column(
       children: [
         TableCalendar<Event>(
@@ -209,20 +211,20 @@ class _EventsScreenState extends State<EventsScreen>
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildSelectedDayEvents(),
+          child: _buildSelectedDayEvents(loc),
         ),
       ],
     );
   }
 
-  Widget _buildSelectedDayEvents() {
+  Widget _buildSelectedDayEvents(AppLocalizations loc) {
     final eventsOnSelectedDay = _getEventsForDay(_selectedDay!);
 
     if (eventsOnSelectedDay.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No events on this day',
-          style: TextStyle(
+          loc.no_events_on_this_day,
+          style: const TextStyle(
             fontSize: 18,
             color: Colors.grey,
           ),
@@ -235,22 +237,22 @@ class _EventsScreenState extends State<EventsScreen>
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final event = eventsOnSelectedDay[index];
-        return _buildEventCard(event);
+        return _buildEventCard(event, loc);
       },
     );
   }
 
-  Widget _buildListView() {
+  Widget _buildListView(AppLocalizations loc) {
     return ListView.builder(
       itemCount: _events.length,
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
-        return _buildEventCard(_events[index]);
+        return _buildEventCard(_events[index], loc);
       },
     );
   }
 
-  Widget _buildEventCard(Event event) {
+  Widget _buildEventCard(Event event, AppLocalizations loc) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
@@ -321,21 +323,20 @@ class _EventsScreenState extends State<EventsScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildEventDetailRow(
-                    Icons.access_time,
+                _buildEventDetailRow(Icons.access_time,
                     '${_formatDateTime(event.startTime)} - ${_formatTime(event.endTime)}'),
                 const SizedBox(height: 8),
                 _buildEventDetailRow(Icons.location_on, event.location),
                 const SizedBox(height: 8),
                 _buildEventDetailRow(
-                    Icons.people, 'Organized by: ${event.organizer}'),
+                    Icons.people, loc.organized_by(event.organizer)),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     // Handle event details or registration
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Registered for ${event.title}'),
+                        content: Text(loc.registered_for(event.title)),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -344,7 +345,7 @@ class _EventsScreenState extends State<EventsScreen>
                     backgroundColor: _getEventTypeColor(event.type),
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Register'),
+                  child: Text(loc.register),
                 ),
               ],
             ),

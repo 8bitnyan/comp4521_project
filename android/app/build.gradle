@@ -28,6 +28,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // environment variable
+        resValue "string", "google_maps_api_key", project.findProperty("GOOGLE_MAPS_API_KEY") ?: ""
     }
 
     // Add a preBuild task to update API keys

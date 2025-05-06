@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -50,10 +51,14 @@ class _MapScreenState extends State<MapScreen> {
     },
   ];
 
+  bool _showSimplifiedMap = false;
+  Position? _currentPosition;
+
   @override
   void initState() {
     super.initState();
     _initializeMap();
+    _getCurrentLocation();
 
     // Set a timeout to detect map loading failures
     Future.delayed(const Duration(seconds: 8), () {
@@ -104,13 +109,38 @@ class _MapScreenState extends State<MapScreen> {
   //   // controller.setMapStyle(style);
   // }
 
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
+    }
+    if (permission == LocationPermission.deniedForever) return;
+
+    final position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _currentPosition = position;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Campus Map'),
         actions: [
-          // Add help button
+          IconButton(
+            icon: Icon(_showSimplifiedMap ? Icons.map : Icons.image),
+            tooltip:
+                _showSimplifiedMap ? 'Show Google Map' : 'Show Simplified Map',
+            onPressed: () {
+              setState(() {
+                _showSimplifiedMap = !_showSimplifiedMap;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: _showMapHelp,
@@ -118,7 +148,7 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       body: _buildMapContent(),
-      floatingActionButton: !_isError
+      floatingActionButton: (!_isError && !_showSimplifiedMap)
           ? FloatingActionButton(
               onPressed: _centerMap,
               child: const Icon(Icons.center_focus_strong),
@@ -128,17 +158,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildMapContent() {
-    // If there's an error, show error message
     if (_isError) {
       return _buildErrorView();
     }
-
-    // If running on iOS simulator, show simplified view
-    if (Platform.isIOS && !kReleaseMode) {
+    if (_showSimplifiedMap) {
       return _buildSimplifiedMapView();
     }
-
-    // Otherwise build the actual map with loading indicator
     return Stack(
       children: [
         GoogleMap(
@@ -216,75 +241,92 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildSimplifiedMapView() {
-    return Stack(
-      children: [
-        // Background
-        Container(
-          color: Colors.grey[200],
-          child: Center(
-            child: Image.asset(
-              'assets/images/simplified_map.jpg',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback if image doesn't exist
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Text(
-                      'HKUST Campus',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return InteractiveViewer(
+      minScale: 1.0,
+      maxScale: 5.0,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final imageWidth = constraints.maxWidth;
+          final imageHeight = constraints.maxHeight;
+          return Stack(
+            children: [
+              Center(
+                child: Image.asset(
+                  'assets/images/simplified_map.jpg',
+                  fit: BoxFit.contain,
+                  width: imageWidth,
+                  height: imageHeight,
+                ),
+              ),
+              if (_currentPosition != null)
+                Positioned(
+                  left: _latLngToImageOffset(_currentPosition!.latitude,
+                          _currentPosition!.longitude, imageWidth, imageHeight)
+                      .dx,
+                  top: _latLngToImageOffset(_currentPosition!.latitude,
+                          _currentPosition!.longitude, imageWidth, imageHeight)
+                      .dy,
+                  child: const Icon(Icons.my_location,
+                      color: Colors.blue, size: 32),
+                ),
+              // Markers
+              for (final location in _campusLocations)
+                Positioned(
+                  left: MediaQuery.of(context).size.width * 0.5 - 12,
+                  top: MediaQuery.of(context).size.height * 0.4 - 24,
+                  child: GestureDetector(
+                    onTap: () {
+                      _showLocationInfo(location);
+                    },
+                    child: const Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                      size: 24,
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        ),
-
-        // Markers
-        for (final location in _campusLocations)
-          Positioned(
-            left: MediaQuery.of(context).size.width * 0.5 - 12,
-            top: MediaQuery.of(context).size.height * 0.4 - 24,
-            child: GestureDetector(
-              onTap: () {
-                _showLocationInfo(location);
-              },
-              child: const Icon(
-                Icons.location_on,
-                color: Colors.red,
-                size: 24,
+                ),
+              // Information banner
+              Positioned(
+                top: 16,
+                left: 16,
+                right: 16,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: const Text(
+                    'Simplified map view (Google Maps not available in simulator)',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-
-        // Information banner
-        Positioned(
-          top: 16,
-          left: 16,
-          right: 16,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey),
-            ),
-            child: const Text(
-              'Simplified map view (Google Maps not available in simulator)',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
+            ],
+          );
+        },
+      ),
     );
+  }
+
+  // Dummy function: You must calibrate this for your map image!
+  Offset _latLngToImageOffset(
+      double lat, double lng, double width, double height) {
+    // Example calibration for HKUST campus map (replace with real values):
+    // Top-left: (latMax, lngMin), Bottom-right: (latMin, lngMax)
+    const double latMax = 22.3420; // top of map
+    const double latMin = 22.3330; // bottom of map
+    const double lngMin = 114.2580; // left of map
+    const double lngMax = 114.2700; // right of map
+    final double x = ((lng - lngMin) / (lngMax - lngMin)) * width;
+    final double y = ((latMax - lat) / (latMax - latMin)) * height;
+    return Offset(x, y);
   }
 
   void _centerMap() {

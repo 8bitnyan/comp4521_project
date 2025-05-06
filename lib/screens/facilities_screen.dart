@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/facility_provider.dart';
 import '../widgets/facility_card.dart';
 
@@ -59,9 +60,18 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final localizedTags = [
+      loc.all,
+      loc.library,
+      loc.sports,
+      loc.academic,
+      loc.student,
+      loc.food,
+    ];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Campus Facilities'),
+        title: Text(loc.campus_facilities),
       ),
       body: Column(
         children: [
@@ -72,7 +82,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search facilities...',
+                    hintText: loc.search_facilities,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -91,11 +101,13 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: _filterTags.map((tag) {
+                    children: List.generate(localizedTags.length, (i) {
+                      final tag = _filterTags[i];
+                      final localizedTag = localizedTags[i];
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: FilterChip(
-                          label: Text(tag),
+                          label: Text(localizedTag),
                           selected: _selectedTag == tag,
                           onSelected: (selected) {
                             if (selected) {
@@ -104,7 +116,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                           },
                         ),
                       );
-                    }).toList(),
+                    }),
                   ),
                 ),
               ],
@@ -120,7 +132,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                 if (facilityProvider.error.isNotEmpty) {
                   return Center(
                     child: Text(
-                      'Error: ${facilityProvider.error}',
+                      loc.error(facilityProvider.error),
                       style: const TextStyle(color: Colors.red),
                     ),
                   );
@@ -129,10 +141,10 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                 final facilities = facilityProvider.filteredFacilities;
 
                 if (facilities.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No facilities found',
-                      style: TextStyle(fontSize: 18),
+                      loc.no_facilities_found,
+                      style: const TextStyle(fontSize: 18),
                     ),
                   );
                 }

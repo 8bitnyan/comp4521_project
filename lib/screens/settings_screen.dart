@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/theme_provider.dart';
@@ -39,50 +40,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(loc.settings_title),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader('Appearance'),
-            _buildThemeSelector(themeProvider),
+            _buildSectionHeader(loc.appearance),
+            _buildThemeSelector(themeProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Text Settings'),
-            _buildFontSizeSelector(settingsProvider),
+            _buildSectionHeader(loc.text_settings),
+            _buildFontSizeSelector(settingsProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Language'),
-            _buildLanguageSelector(settingsProvider),
+            _buildSectionHeader(loc.language),
+            _buildLanguageSelector(settingsProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Notifications'),
-            _buildNotificationSettings(settingsProvider),
+            _buildSectionHeader(loc.notifications),
+            _buildNotificationSettings(settingsProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Map Settings'),
-            _buildMapSettings(settingsProvider),
+            _buildSectionHeader(loc.map_settings),
+            _buildMapSettings(settingsProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Privacy'),
-            _buildPrivacySettings(settingsProvider),
+            _buildSectionHeader(loc.privacy),
+            _buildPrivacySettings(settingsProvider, loc),
             const Divider(),
 
-            _buildSectionHeader('Accessibility'),
-            _buildAccessibilitySettings(),
+            _buildSectionHeader(loc.accessibility),
+            _buildAccessibilitySettings(loc),
             const Divider(),
 
-            _buildSectionHeader('About'),
-            _buildAboutSection(),
+            _buildSectionHeader(loc.about),
+            _buildAboutSection(loc),
             const SizedBox(height: 16),
 
-            _buildSectionHeader('Developer'),
-            _buildDeveloperSection(),
+            _buildSectionHeader(loc.developer),
+            _buildDeveloperSection(loc),
 
             // Reset all settings button
             Center(
@@ -142,13 +144,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeSelector(ThemeProvider themeProvider) {
+  Widget _buildThemeSelector(
+      ThemeProvider themeProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: const Text('Dark Theme'),
-          subtitle: const Text('Enable dark mode for the app'),
+          title: Text(loc.dark_theme),
+          subtitle: Text(loc.dark_theme_desc),
           trailing: Radio<ThemeMode>(
             value: ThemeMode.dark,
             groupValue: themeProvider.themeMode,
@@ -160,8 +163,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         ListTile(
-          title: const Text('System Theme'),
-          subtitle: const Text('Follow system theme settings'),
+          title: Text(loc.system_theme),
+          subtitle: Text(loc.system_theme_desc),
           trailing: Radio<ThemeMode>(
             value: ThemeMode.system,
             groupValue: themeProvider.themeMode,
@@ -173,8 +176,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         ListTile(
-          title: const Text('Light Theme'),
-          subtitle: const Text('Use light mode for the app'),
+          title: Text(loc.light_theme),
+          subtitle: Text(loc.light_theme_desc),
           trailing: Radio<ThemeMode>(
             value: ThemeMode.light,
             groupValue: themeProvider.themeMode,
@@ -189,33 +192,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildFontSizeSelector(SettingsProvider settingsProvider) {
+  Widget _buildFontSizeSelector(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: const Text('Font Size'),
-          subtitle: Text(
-              'Current size: ${_getFontSizeText(settingsProvider.fontSize)}'),
+          title: Text(loc.font_size),
+          subtitle: Text(loc
+              .current_size(_getFontSizeText(settingsProvider.fontSize, loc))),
         ),
         Slider(
           value: settingsProvider.fontSize,
           min: 0.8,
           max: 1.4,
           divisions: 6,
-          label: _getFontSizeText(settingsProvider.fontSize),
+          label: _getFontSizeText(settingsProvider.fontSize, loc),
           onChanged: (value) {
             settingsProvider.setFontSize(value);
           },
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Small', style: TextStyle(fontSize: 12)),
-              Text('Medium', style: TextStyle(fontSize: 14)),
-              Text('Large', style: TextStyle(fontSize: 16)),
+              Text(loc.small, style: const TextStyle(fontSize: 12)),
+              Text(loc.medium, style: const TextStyle(fontSize: 14)),
+              Text(loc.large, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),
@@ -228,7 +232,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'Sample Text',
+              loc.sample_text,
               style: TextStyle(
                 fontSize: 16 * settingsProvider.fontSize,
               ),
@@ -239,41 +243,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  String _getFontSizeText(double size) {
-    if (size <= 0.9) return 'Small';
-    if (size <= 1.1) return 'Medium';
-    return 'Large';
+  String _getFontSizeText(double size, AppLocalizations loc) {
+    if (size <= 0.9) return loc.small;
+    if (size <= 1.1) return loc.medium;
+    return loc.large;
   }
 
-  Widget _buildLanguageSelector(SettingsProvider settingsProvider) {
+  Widget _buildLanguageSelector(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: const Text('App Language'),
-          subtitle:
-              Text('Current: ${_getLanguageName(settingsProvider.language)}'),
+          title: Text(loc.app_language),
+          subtitle: Text(loc.current_language(
+              _getLanguageName(settingsProvider.language, loc))),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: () {
-            _showLanguageDialog(settingsProvider);
+            _showLanguageDialog(settingsProvider, loc);
           },
         ),
       ],
     );
   }
 
-  void _showLanguageDialog(SettingsProvider settingsProvider) {
+  void _showLanguageDialog(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Select Language'),
+          title: Text(loc.select_language),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 RadioListTile<String>(
-                  title: const Text('English'),
+                  title: Text(loc.english),
                   value: 'en',
                   groupValue: settingsProvider.language,
                   onChanged: (value) {
@@ -282,17 +288,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 RadioListTile<String>(
-                  title: const Text('Chinese (Traditional)'),
-                  value: 'zh_HK',
-                  groupValue: settingsProvider.language,
-                  onChanged: (value) {
-                    settingsProvider.setLanguage(value!);
-                    Navigator.of(context).pop();
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Chinese (Simplified)'),
-                  value: 'zh_CN',
+                  title: Text(loc.korean),
+                  value: 'ko',
                   groupValue: settingsProvider.language,
                   onChanged: (value) {
                     settingsProvider.setLanguage(value!);
@@ -307,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(loc.cancel),
             ),
           ],
         );
@@ -315,42 +312,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  String _getLanguageName(String languageCode) {
+  String _getLanguageName(String languageCode, AppLocalizations loc) {
     switch (languageCode) {
       case 'en':
-        return 'English';
-      case 'zh_HK':
-        return 'Chinese (Traditional)';
-      case 'zh_CN':
-        return 'Chinese (Simplified)';
+        return loc.english;
+      case 'ko':
+        return loc.korean;
       default:
-        return 'English';
+        return loc.english;
     }
   }
 
-  Widget _buildNotificationSettings(SettingsProvider settingsProvider) {
+  Widget _buildNotificationSettings(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SwitchListTile(
-          title: const Text('Event Notifications'),
-          subtitle: const Text('Receive notifications about campus events'),
+          title: Text(loc.event_notifications),
+          subtitle: Text(loc.event_notifications_desc),
           value: settingsProvider.notifyEvents,
           onChanged: (value) {
             settingsProvider.setNotifyEvents(value);
           },
         ),
         SwitchListTile(
-          title: const Text('Food Menu Updates'),
-          subtitle: const Text('Get notified when food menus are updated'),
+          title: Text(loc.food_menu_updates),
+          subtitle: Text(loc.food_menu_updates_desc),
           value: settingsProvider.notifyFoodMenus,
           onChanged: (value) {
             settingsProvider.setNotifyFoodMenus(value);
           },
         ),
         SwitchListTile(
-          title: const Text('Facility Updates'),
-          subtitle: const Text('Receive notifications about facility changes'),
+          title: Text(loc.facility_updates),
+          subtitle: Text(loc.facility_updates_desc),
           value: settingsProvider.notifyFacilities,
           onChanged: (value) {
             settingsProvider.setNotifyFacilities(value);
@@ -360,7 +356,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildMapSettings(SettingsProvider settingsProvider) {
+  Widget _buildMapSettings(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -462,7 +459,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildPrivacySettings(SettingsProvider settingsProvider) {
+  Widget _buildPrivacySettings(
+      SettingsProvider settingsProvider, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -499,7 +497,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildAccessibilitySettings() {
+  Widget _buildAccessibilitySettings(AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -515,7 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildAboutSection() {
+  Widget _buildAboutSection(AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -541,7 +539,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDeveloperSection() {
+  Widget _buildDeveloperSection(AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

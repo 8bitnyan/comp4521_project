@@ -55,6 +55,9 @@ dependencies:
   # For environment variables
   flutter_dotenv: ^5.1.0
   camera: ^0.11.1
+  flutter_localizations:
+    sdk: flutter
+  geolocator: ^10.0.0
 
 dev_dependencies:
   flutter_test:
@@ -108,3 +111,27 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  generate: true
+  # Localization configuration
+  # This tells Flutter where to find the ARB files and which locales to support
+  # See: https://docs.flutter.dev/development/accessibility-and-localization/internationalization
+  # and https://docs.flutter.dev/tools/localization
+  #
+  # The following is the recommended config for Flutter 3.7+
+  # If using older Flutter, use l10n.yaml instead
+  #
+  # The ARB files are in lib/i18n/
+  # Supported locales: English (en), Korean (ko)
+  # The template ARB file is app_en.arb
+  #
+  # If you want to customize the output directory, use 'output-dir:'
+  #
+  # Example:
+  #   generate: true
+  #   arb-dir: lib/i18n
+  #   template-arb-file: app_en.arb
+  #   output-localization-file: app_localizations.dart
+  #   output-class: AppLocalizations
+  #
+  # For now, just ensure generate: true is present and ARB files are in lib/i18n/

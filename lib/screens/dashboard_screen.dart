@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/voice_command_button.dart';
 
@@ -10,10 +11,11 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text(loc.dashboard_title),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -54,7 +56,7 @@ class DashboardScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Welcome, ${user?.name ?? "User"}',
+                              loc.welcome(user?.name ?? loc.no_email),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -62,7 +64,7 @@ class DashboardScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              user?.email ?? 'No email',
+                              user?.email ?? loc.no_email,
                               style: const TextStyle(
                                 color: Colors.grey,
                               ),
@@ -76,9 +78,9 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'School Guide Features',
-              style: TextStyle(
+            Text(
+              loc.school_guide_features,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -89,8 +91,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.map,
-                    title: 'Campus Map',
-                    description: 'Interactive navigation and location finder',
+                    title: loc.campus_map_title,
+                    description: loc.campus_map_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/map');
                     },
@@ -100,8 +102,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.calendar_today,
-                    title: 'Events',
-                    description: 'Campus events and activities',
+                    title: loc.events_title,
+                    description: loc.events_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/events');
                     },
@@ -115,8 +117,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.business,
-                    title: 'Facilities',
-                    description: 'Library, labs, and campus resources',
+                    title: loc.facilities_title,
+                    description: loc.facilities_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/facilities');
                     },
@@ -126,8 +128,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.restaurant,
-                    title: 'Food Venues',
-                    description: 'Dining options and menus',
+                    title: loc.food_venues_title,
+                    description: loc.food_venues_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/venues');
                     },
@@ -141,8 +143,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.settings,
-                    title: 'Settings',
-                    description: 'Customize your app experience',
+                    title: loc.settings_title,
+                    description: loc.settings_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/settings');
                     },
@@ -159,8 +161,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _FeatureCard(
                     icon: Icons.camera,
-                    title: 'What is this',
-                    description: 'Take a photo to identify what you see',
+                    title: loc.what_is_this_title,
+                    description: loc.what_is_this_desc,
                     onTap: () {
                       Navigator.pushNamed(context, '/camera');
                     },
@@ -176,17 +178,17 @@ class DashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Quick Tip',
-                      style: TextStyle(
+                    Text(
+                      loc.quick_tip,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Use the map feature to locate buildings and facilities around campus.',
-                      style: TextStyle(fontSize: 14),
+                    Text(
+                      loc.quick_tip_text,
+                      style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
@@ -194,7 +196,7 @@ class DashboardScreen extends StatelessWidget {
                         Navigator.pushNamed(context, '/map');
                       },
                       icon: const Icon(Icons.navigation),
-                      label: const Text('Open Map Now'),
+                      label: Text(loc.open_map_now),
                     ),
                   ],
                 ),

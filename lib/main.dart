@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/app_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
@@ -19,12 +20,17 @@ import 'screens/facilities_screen.dart';
 import 'screens/food_venues_screen.dart';
 import 'screens/accessibility_screen.dart';
 import 'screens/camera_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize app configuration (API keys)
   await AppConfig.initialize();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
 
   await Supabase.initialize(
     url: 'https://byhgngvrdzhhzedeqdsb.supabase.co',
@@ -43,87 +49,89 @@ void main() async {
         ChangeNotifierProvider(create: (_) => VoiceCommandProvider()),
         // Add other providers here as needed
       ],
-      child: const MyApp(),
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return MaterialApp(
+            title: 'HKUST School Guide',
+            theme: ThemeService.getLightTheme(),
+            darkTheme: ThemeService.getDarkTheme(),
+            themeMode: ThemeProvider().themeMode,
+            home: const AuthGate(),
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/signup': (context) => const SignUpScreen(),
+              '/dashboard': (context) => const DashboardScreen(),
+              '/events': (context) => const EventsScreen(),
+              '/map': (context) {
+                // Wrap the MapScreen with error handling
+                return Builder(
+                  builder: (context) {
+                    try {
+                      return const MapScreen();
+                    } catch (e) {
+                      // If MapScreen crashes during creation, show fallback UI
+                      print("CRITICAL ERROR - Map screen crashed: $e");
+                      return Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Campus Map (Error)'),
+                        ),
+                        body: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  size: 64, color: Colors.red),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Map failed to load',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 32),
+                                child: Text(
+                                  'Error: $e',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Go Back'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+              '/settings': (context) => const SettingsScreen(),
+              '/facilities': (context) => const FacilitiesScreen(),
+              '/venues': (context) => const FoodVenuesScreen(),
+              '/accessibility': (context) => const AccessibilityScreen(),
+              '/camera': (context) => const CameraScreen(),
+            },
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('ko'),
+            ],
+            locale: Locale(settingsProvider.language),
+          );
+        },
+      ),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return MaterialApp(
-          title: 'HKUST School Guide',
-          theme: ThemeService.getLightTheme(),
-          darkTheme: ThemeService.getDarkTheme(),
-          themeMode: themeProvider.themeMode,
-          home: const AuthGate(),
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/signup': (context) => const SignUpScreen(),
-            '/dashboard': (context) => const DashboardScreen(),
-            '/events': (context) => const EventsScreen(),
-            '/map': (context) {
-              // Wrap the MapScreen with error handling
-              return Builder(
-                builder: (context) {
-                  try {
-                    return const MapScreen();
-                  } catch (e) {
-                    // If MapScreen crashes during creation, show fallback UI
-                    print("CRITICAL ERROR - Map screen crashed: $e");
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('Campus Map (Error)'),
-                      ),
-                      body: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.error_outline,
-                                size: 64, color: Colors.red),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Map failed to load',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 32),
-                              child: Text(
-                                'Error: $e',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            ElevatedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Go Back'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                },
-              );
-            },
-            '/settings': (context) => const SettingsScreen(),
-            '/facilities': (context) => const FacilitiesScreen(),
-            '/venues': (context) => const FoodVenuesScreen(),
-            '/accessibility': (context) => const AccessibilityScreen(),
-            '/camera': (context) => const CameraScreen(),
-          },
-        );
-      },
-    );
-  }
 }
 
 class AuthGate extends StatelessWidget {

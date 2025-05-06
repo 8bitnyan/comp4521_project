@@ -15,6 +15,6 @@ class AppConfig {
   /// Get the Google Maps API key
   static String get googleMapsApiKey {
     return dotenv.env['GOOGLE_MAPS_API_KEY'] ??
-        'YOUR_API_KEY_HERE'; // Placeholder for builds without .env
+        'AIzaSyCAjnCtA7VNOUHOhIAK-wQ80f04QeQDrkQ'; // Placeholder for builds without .env
   }
 }

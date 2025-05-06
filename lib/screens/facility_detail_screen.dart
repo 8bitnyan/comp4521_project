@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/facility.dart';
 
 class FacilityDetailScreen extends StatefulWidget {
@@ -42,6 +43,7 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -85,10 +87,10 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
               children: [
                 TabBar(
                   controller: _tabController,
-                  tabs: const [
-                    Tab(text: 'Details'),
-                    Tab(text: 'Map'),
-                    Tab(text: 'Hours'),
+                  tabs: [
+                    Tab(text: loc.details),
+                    Tab(text: loc.map),
+                    Tab(text: loc.hours),
                   ],
                   labelColor: Theme.of(context).primaryColor,
                   unselectedLabelColor: Colors.grey,
@@ -98,9 +100,9 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _buildDetailsTab(),
+                      _buildDetailsTab(loc),
                       _buildMapTab(),
-                      _buildHoursTab(),
+                      _buildHoursTab(loc),
                     ],
                   ),
                 ),
@@ -113,27 +115,27 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
         onPressed: () {
           // Add navigation logic here
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Navigation started'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(loc.navigation_started),
+              duration: const Duration(seconds: 2),
             ),
           );
         },
         icon: const Icon(Icons.directions),
-        label: const Text('Navigate'),
+        label: Text(loc.navigate),
       ),
     );
   }
 
-  Widget _buildDetailsTab() {
+  Widget _buildDetailsTab(AppLocalizations loc) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Description',
-            style: TextStyle(
+          Text(
+            loc.description,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -144,9 +146,9 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Location',
-            style: TextStyle(
+          Text(
+            loc.location,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -165,9 +167,9 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Contact',
-            style: TextStyle(
+          Text(
+            loc.contact,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -191,9 +193,9 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Current Occupancy',
-                  style: TextStyle(
+                Text(
+                  loc.current_occupancy,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -228,9 +230,9 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
                 const SizedBox(height: 16),
               ],
             ),
-          const Text(
-            'Tags',
-            style: TextStyle(
+          Text(
+            loc.tags,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -252,9 +254,17 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
   }
 
   Widget _buildMapTab() {
+    final lat = widget.facility.latitude;
+    final lng = widget.facility.longitude;
+    print('Building MapTab: lat=$lat, lng=$lng');
+    if (lat == null || lng == null || lat.isNaN || lng.isNaN) {
+      print('Invalid coordinates for map');
+      return Center(child: Text('Location not available'));
+    }
+    print('Rendering GoogleMap widget');
     return GoogleMap(
       initialCameraPosition: CameraPosition(
-        target: LatLng(widget.facility.latitude, widget.facility.longitude),
+        target: LatLng(lat, lng),
         zoom: 17.0,
       ),
       markers: _markers,
@@ -265,15 +275,15 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
     );
   }
 
-  Widget _buildHoursTab() {
+  Widget _buildHoursTab(AppLocalizations loc) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Operating Hours',
-            style: TextStyle(
+          Text(
+            loc.operating_hours,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -304,17 +314,17 @@ class _FacilityDetailScreenState extends State<FacilityDetailScreen>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Notes',
-            style: TextStyle(
+          Text(
+            loc.notes,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Hours may vary during holidays and exam periods. Please check the official school website for the most up-to-date information.',
-            style: TextStyle(fontSize: 16),
+          Text(
+            loc.hours_may_vary,
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),
